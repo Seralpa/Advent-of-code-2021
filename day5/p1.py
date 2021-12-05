@@ -1,28 +1,32 @@
+from collections import defaultdict
+from operator import add
+from math import gcd
+
+
+def normalize_vector(p1: tuple[int, int], p2: tuple[int, int]) -> tuple[int, int]:
+	vector = [x2 - x1 for x1, x2 in zip(p1, p2)]
+	div = gcd(*vector)
+	return tuple(map(lambda x: int(x / div), vector))
+
+
 with open("input.txt") as f:
 	data = [l.split(" -> ") for l in f.read().splitlines()]
 
 lines: list[tuple[tuple, tuple]] = []
 for d in data:
-	point1 = d[0].split(",")
-	point2 = d[1].split(",")
+	p1 = tuple(map(int, d[0].split(",")))
+	p2 = tuple(map(int, d[1].split(",")))
+	if p1[0] == p2[0] or p1[1] == p2[1]:
+		lines.append((p1, p2))
 
-	point1 = (int(point1[0]), int(point1[1]))
-	point2 = (int(point2[0]), int(point2[1]))
-	if point1[0] == point2[0] or point1[1] == point2[1]:
-		lines.append((point1, point2))
-
-points = dict()
+points = defaultdict(int)
 for l in lines:
-	if l[0][0] == l[1][0]:  # horizontal
-		for p in range(min(l[0][1], l[1][1]), max(l[0][1], l[1][1]) + 1):
-			if (p, l[0][0]) not in points.keys():
-				points[(p, l[0][0])] = 1
-			else:
-				points[(p, l[0][0])] += 1
-	else:  #vertical
-		for p in range(min(l[0][0], l[1][0]), max(l[0][0], l[1][0]) + 1):
-			if (l[0][1], p) not in points.keys():
-				points[(l[0][1], p)] = 1
-			else:
-				points[(l[0][1], p)] += 1
+	p1, p2 = l
+	vector = normalize_vector(p1, p2)
+	done = False
+	while not done:
+		done = p1 == p2
+		points[p1] += 1
+		p1 = tuple(map(add, p1, vector))
+
 print(len([p for p in points.values() if p >= 2]))
