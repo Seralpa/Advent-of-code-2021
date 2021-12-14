@@ -6,7 +6,6 @@ with open("input.txt") as f:
 		line = l.split(" -> ")
 		rules[line[0]] = line[1]
 
-# pair -> n_of that pair
 pairs = dict()
 
 for i in range(len(polymer) - 1):
@@ -35,7 +34,6 @@ for iter in range(40):
 
 count = dict()
 for k, v in pairs.items():
-	# print(k)
 	if k[0] in count.keys():
 		count[k[0]] += v
 	else:
