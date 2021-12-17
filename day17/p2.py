@@ -5,45 +5,36 @@ target_y = (-10, -5)
 target_x = (236, 262)
 target_y = (-78, -58)
 
-
-def test_path(vel: list[int, int]) -> int:
-	pos = [0, 0]
-	while pos[1] >= target_y[0]:
-		if pos[0] >= target_x[0] and pos[0] <= target_x[1] and pos[1] >= target_y[0] and pos[1] <= target_y[1]:
-			return True
-		pos[0] += vel[0]
-		pos[1] += vel[1]
-		if vel[0] < 0:
-			vel[0] += 1
-		elif vel[0] > 0:
-			vel[0] -= 1
-		vel[1] -= 1
-	return 0
-
-
-valid_x = []
+valid_x: dict[int, set] = dict()
+valid_y: dict[int, set] = dict()
 for i in range(target_x[1] + 1):
-	final_x = 0
+	x = 0
 	vel = i
-	while final_x < target_x[0] and vel > 0:
-		final_x += vel
+	steps = 0
+	while x <= target_x[1] and vel >= 0:
+		steps += 1
+		x += vel
 		vel -= 1
-		if final_x >= target_x[0] and final_x <= target_x[1]:
-			valid_x.append(i)
+		if x >= target_x[0] and x <= target_x[1]:
+			valid_x.setdefault(i, {steps}).add(steps)
+			if vel == 0:
+				from_steps_to_inf = set(range(steps, 1000))  # guessing no valid path takes more than 1000 steps
+				valid_x.setdefault(i, from_steps_to_inf).update(from_steps_to_inf)
 
-valid_y = []
 for i in range(target_y[0], 1000):  # just guessing this is enough lol
-	final_y = 0
+	y = 0
 	vel = i
-	while final_y >= target_y[0]:
-		final_y += vel
+	steps = 0
+	while y >= target_y[0]:
+		steps += 1
+		y += vel
 		vel -= 1
-		if final_y >= target_y[0] and final_y <= target_y[1]:
-			valid_y.append(i)
+		if y >= target_y[0] and y <= target_y[1]:
+			valid_y.setdefault(i, {steps}).add(steps)
 
 valid = set()
-for x in valid_x:
-	for y in valid_y:
-		if test_path([x, y]):
+for x, xv in valid_x.items():
+	for y, yv in valid_y.items():
+		if xv & yv:
 			valid.add((x, y))
 print(len(valid))
